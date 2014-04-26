@@ -1,7 +1,6 @@
 package opencamp.findthepair;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 import opencamp.findthepair.customview.SquareImageView;
@@ -18,9 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -64,20 +61,21 @@ public class Game extends Activity {
 		new PreSequanceTasker(gridview, progressBarTime, textViewTime).execute();
 	}
 	
-	public static class PreSequanceTasker extends AsyncTask<Void, Integer, Void> {
-		private GridView gdv;
-		private ProgressBar pbar;
-		private TextView text;
+	public static class SequanceTasker extends AsyncTask<Void, Integer, Void> {
+		protected GridView gdv;
+		protected ProgressBar pbar;
+		protected TextView text;
 		
-		private int timeLmt = 10;
-		private int tick;
-		private int max;
+		protected int timeLmt = 10;
+		protected int tick;
+		protected int max;
 		
-		public PreSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
+		public SequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			this.gdv = gdv;
 			this.pbar = pbar;
 			this.text = text;
-			
+		}
+		protected void init() {
 			tick = 1000/30;
 			max = timeLmt*tick*30;
 		}
@@ -87,16 +85,7 @@ public class Game extends Activity {
 		protected void onPreExecute() {
 			pbar.setMax(max);
 			pbar.setProgress(max);
-			
 			text.setText(timeLmt+" Sec");
-			
-			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
-			int count = adapter.getCount();
-			for(int i=0; i < count; i++) {
-				Card item = (Card) adapter.getItem(i);
-				item.touch();
-			}
-			adapter.notifyDataSetChanged();
 			
 			super.onPreExecute();
 		}
@@ -129,7 +118,81 @@ public class Game extends Activity {
 			}
 			super.onProgressUpdate(values);
 		}
+	}
+	
+	
+	public static class MainSequanceTasker extends SequanceTasker {
+
+		public MainSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
+			super(gdv, pbar, text);
+			timeLmt = 60;
+			init();
+		}
+		@Override
+		protected Void doInBackground(Void... params) {
+			try {
+				for(int i=0; i<timeLmt ; i++ ) {
+					for(int j=0;j<30;j++) {
+						Thread.sleep(tick);
+						publishProgress(tick,0);
+						if(isGameClear())
+							return null;
+					}
+					publishProgress(0,timeLmt-i-1);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
 		
+		private boolean isGameClear() {
+			boolean comp = true;
+			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
+			int count = adapter.getCount();
+			for(int i=0; i < count && comp; i++) {
+				Card item = (Card) adapter.getItem(i);
+				comp &= item.isLock();
+			}
+			return comp;
+		}
+		@Override
+		protected void onPostExecute(Void result) {
+			Log.d("part of score",":::"+pbar.getProgress());
+			
+			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
+			int count = adapter.getCount();
+			for(int i=0; i < count; i++) {
+				Card item = (Card) adapter.getItem(i);
+				item.lock(); // whatever it is.
+			}
+			adapter.notifyDataSetChanged();
+			
+			super.onPostExecute(result);
+		}		
+		
+	}
+	
+	public static class PreSequanceTasker extends SequanceTasker {
+		public PreSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
+			super(gdv, pbar, text);
+			timeLmt = 10;
+			init();
+		}
+		
+		
+		@Override
+		protected void onPreExecute() {
+			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
+			int count = adapter.getCount();
+			for(int i=0; i < count; i++) {
+				Card item = (Card) adapter.getItem(i);
+				item.touch();
+			}
+			adapter.notifyDataSetChanged();
+			
+			super.onPreExecute();
+		}
 		@Override
 		protected void onPostExecute(Void result) {
 			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
@@ -139,6 +202,8 @@ public class Game extends Activity {
 				item.clear();
 			}
 			adapter.notifyDataSetChanged();
+			
+			new MainSequanceTasker(gdv,pbar,text).execute();
 			
 			super.onPostExecute(result);
 		}
