@@ -6,17 +6,21 @@ import java.util.Collections;
 import opencamp.findthepair.customview.SquareImageView;
 import opencamp.findthepair.model.Card;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -161,14 +165,66 @@ public class Game extends Activity {
 		@Override
 		protected void onPostExecute(Void result) {
 			Log.d("part of score",":::"+pbar.getProgress());
+			final boolean isClear = isGameClear();
 			
 			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
 			int count = adapter.getCount();
 			for(int i=0; i < count; i++) {
 				Card item = (Card) adapter.getItem(i);
-				item.lock(); // whatever it is.
+				item.lock(true); // whatever it is.
 			}
 			adapter.notifyDataSetChanged();
+			
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					if(isClear){
+						showTextInputeDlgForRanking();
+					} else {
+						showGameOverDlg();
+					}
+				}
+
+				private void showGameOverDlg() {
+					AlertDialog.Builder builder = new AlertDialog.Builder(gdv.getContext());
+					builder.setTitle("GameOver");
+					// Set up the buttons
+					builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+					        System.exit(0);
+					    }
+					});
+					builder.show();
+				}
+
+				private void showTextInputeDlgForRanking() {
+					AlertDialog.Builder builder = new AlertDialog.Builder(gdv.getContext());
+					builder.setTitle("Type your name to record to rank.");
+
+					// Set up the input
+					final EditText input = new EditText(gdv.getContext());
+					// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+					input.setInputType(InputType.TYPE_CLASS_TEXT);
+					builder.setView(input);
+
+					// Set up the buttons
+					builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+					        String m_Text = input.getText().toString();
+					    }
+					});
+					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+					        dialog.cancel();
+					    }
+					});
+					builder.show();
+				}
+			}, 1000);
 			
 			super.onPostExecute(result);
 		}		
@@ -190,6 +246,7 @@ public class Game extends Activity {
 			for(int i=0; i < count; i++) {
 				Card item = (Card) adapter.getItem(i);
 				item.touch();
+				item.lock(true);
 			}
 			adapter.notifyDataSetChanged();
 			
@@ -201,6 +258,7 @@ public class Game extends Activity {
 			int count = adapter.getCount();
 			for(int i=0; i < count; i++) {
 				Card item = (Card) adapter.getItem(i);
+				item.lock(false);
 				item.clear();
 			}
 			adapter.notifyDataSetChanged();
@@ -267,8 +325,8 @@ public class Game extends Activity {
     				public void run() {
     					if(openedCard1.getResId()==openedCard2.getResId()) {
     						//get point;
-    						openedCard1.lock();
-    						openedCard2.lock();
+    						openedCard1.lock(true);
+    						openedCard2.lock(true);
     					} else {
     						openedCard1.clear();
     						openedCard2.clear();
