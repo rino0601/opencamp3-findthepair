@@ -11,3 +11,4 @@ public class Game extends Activity {
 		setContentView(R.layout.game);
 	}
 }
+

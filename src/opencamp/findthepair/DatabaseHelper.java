@@ -1,6 +1,7 @@
 package opencamp.findthepair;
 
 import java.sql.SQLException;
+import java.util.Date;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,7 +20,7 @@ import com.j256.ormlite.table.TableUtils;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	// name of the database file for your application -- change to something appropriate for your app
-	private static final String DATABASE_NAME = "opencamp.db";
+	private static final String DATABASE_NAME = "opencamp2.db";
 	// any time you make changes to your database objects, you may have to increase the database version
 	private static final int DATABASE_VERSION = 1;
 
@@ -49,10 +50,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		RuntimeExceptionDao<SimpleData, Integer> dao = getSimpleDataDao();
 		long millis = System.currentTimeMillis();
 		// create some entries in the onCreate
-		SimpleData simple = new SimpleData(millis);
-		dao.create(simple);
-		simple = new SimpleData(millis + 1);
-		dao.create(simple);
+		dao.create(new SimpleData("tester1",300,10,1,new Date(0)));
+		dao.create(new SimpleData("tester2",50,20,2,new Date(0)));
+		dao.create(new SimpleData("tester3",3000,30,3,new Date(0)));
+		dao.create(new SimpleData("tester4",200,40,4,new Date(0)));
+		dao.create(new SimpleData("tester5",100,50,5,new Date(0)));
 		Log.i(DatabaseHelper.class.getName(), "created new entries in onCreate: " + millis);
 	}
 
