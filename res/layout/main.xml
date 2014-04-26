@@ -6,20 +6,20 @@
     tools:context=".main" >
 
     <Button
-        android:id="@+id/btn_rank"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/btn_start"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="51dp"
-        android:text="Rank" />
-
-    <Button
-        android:id="@+id/btn_start"
+        android:id="@+id/btn_game"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/btn_rank"
         android:layout_centerHorizontal="true"
         android:text="Start" />
+
+    <Button
+        android:id="@+id/btn_rank"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/btn_game"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"
+        android:text="Rank" />
 
 </RelativeLayout>
