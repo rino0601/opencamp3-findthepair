@@ -12,14 +12,14 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity android:name="Main">
+        <activity android:name="opencamp.findthepair.Main" android:label="@string/app_name" >
             <intent-filter>
-			      <action android:name="android.intent.action.MAIN" />
-			      <category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-        <activity android:name="Game"></activity>
-        <activity android:name="Rank"></activity>
+        <activity android:name="opencamp.findthepair.Game" android:label="@string/app_name" />
+        <activity android:name="opencamp.findthepair.Rank" android:label="@string/app_name" />
     </application>
 
 </manifest>
