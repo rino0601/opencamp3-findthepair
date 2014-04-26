@@ -5,6 +5,18 @@ import java.util.Collections;
 
 import opencamp.findthepair.customview.SquareImageView;
 import opencamp.findthepair.model.Card;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -340,7 +352,40 @@ public class Game extends Activity {
         }
 	}
 	
-	public boolean scoreSend(String name, int score, double time, double acc)
+	private String sendByHttp(String name, int score) {
+		if(name == null)
+			return "NULL_NAME";
+		
+		// 서버를 설정해주세요!!!
+		String URL = "http://165.194.35.212/post";
+		HttpClient http = new DefaultHttpClient();
+		try { 
+
+			ArrayList<NameValuePair> nameValuePairs = 
+					new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("name", name));
+			nameValuePairs.add(new BasicNameValuePair("score", ""+score));
+
+			HttpParams params = http.getParams();
+			HttpConnectionParams.setConnectionTimeout(params, 5000);
+			HttpConnectionParams.setSoTimeout(params, 5000);
+
+			HttpPost httpPost = new HttpPost(URL);
+			UrlEncodedFormEntity entityRequest = 
+					new UrlEncodedFormEntity(nameValuePairs, "utf-8");
+			
+			httpPost.setEntity(entityRequest);
+			
+			HttpResponse response = http.execute(httpPost);
+			StatusLine statusLine = response.getStatusLine();
+			int statusCode = statusLine.getStatusCode(); // This will be 200 or 404, etc.
+			
+			return ""+statusCode;
+		}catch(Exception e){e.printStackTrace();return "";}
+		
+	}
+	
+	public boolean scoreSend(String name, int score)
 	{
 //		SimpleData simple = new SimpleData(name, score, time, acc, new Date());
 		

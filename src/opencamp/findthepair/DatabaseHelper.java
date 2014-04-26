@@ -50,11 +50,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		RuntimeExceptionDao<SimpleData, Integer> dao = getSimpleDataDao();
 		long millis = System.currentTimeMillis();
 		// create some entries in the onCreate
-		dao.create(new SimpleData("tester1",300,10,1,new Date(0)));
-		dao.create(new SimpleData("tester2",50,20,2,new Date(0)));
-		dao.create(new SimpleData("tester3",3000,30,3,new Date(0)));
-		dao.create(new SimpleData("tester4",200,40,4,new Date(0)));
-		dao.create(new SimpleData("tester5",100,50,5,new Date(0)));
+		dao.create(new SimpleData("tester1",300,new Date()));
+		dao.create(new SimpleData("tester2",50,new Date()));
+		dao.create(new SimpleData("tester3",3000,new Date()));
+		dao.create(new SimpleData("tester4",200,new Date()));
+		dao.create(new SimpleData("tester5",100,new Date()));
 		Log.i(DatabaseHelper.class.getName(), "created new entries in onCreate: " + millis);
 	}
 
