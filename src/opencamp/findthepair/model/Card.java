@@ -4,10 +4,11 @@ import opencamp.findthepair.R;
 
 
 public class Card {	
-	private static final int defaultResId = R.drawable.ic_launcher; 
+	private static final int defaultResId = R.drawable.r000; 
 	private int frontResId = defaultResId;
 	private int resId;
 	private boolean isLocked = false;
+	
 	public Card(int resId) {
 		this.resId = resId;
 	}
