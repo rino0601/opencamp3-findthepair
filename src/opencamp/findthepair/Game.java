@@ -1,8 +1,9 @@
 package opencamp.findthepair;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 
 import opencamp.findthepair.customview.SquareImageView;
 import opencamp.findthepair.model.Card;
@@ -16,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 
 public class Game extends Activity {
@@ -118,6 +118,13 @@ public class Game extends Activity {
     			}, 500);	
             }
         }
+	}
+	
+	public boolean scoreSend(String name, int score, double time, double acc)
+	{
+//		SimpleData simple = new SimpleData(name, score, time, acc, new Date());
+		
+		return true;
 	}
 }
 
