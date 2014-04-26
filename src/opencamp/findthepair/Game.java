@@ -43,13 +43,23 @@ import android.widget.TextView;
 
 public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 
+	private ProgressBar progressBarTime;
+	private TextView textViewTime;
+	private GridView gridview;
+	
+	private AsyncTask<Void,Integer,Void> taskPreseq;
+	private AsyncTask<Void,Integer,Void> taskMainseq;
+	
+	private Handler handlerMainThread;
+	private Runnable runnableCardFlip;
+	private Runnable runnableEndOfGame;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		
-		// init gridView
-		GridView gridview = (GridView) findViewById(R.id.gridview);
+		gridview = (GridView) findViewById(R.id.gridview);
 		IImageAdapter iImageAdapter = new IImageAdapter(this);
 		gridview.setOnItemClickListener(iImageAdapter);
 		// load resource.
@@ -74,13 +84,32 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		// finish init.
 		gridview.setAdapter(iImageAdapter);
 		
-		// init timer
-		ProgressBar progressBarTime = (ProgressBar) findViewById(R.id.progressBarTime);
+		progressBarTime = (ProgressBar) findViewById(R.id.progressBarTime);
 		
-		//init timer Text
-		TextView textViewTime = (TextView) findViewById(R.id.textViewTime);
-		
-		new PreSequanceTasker(gridview, progressBarTime, textViewTime).execute();
+		textViewTime = (TextView) findViewById(R.id.textViewTime);
+	}
+	
+	@Override
+	protected void onStart() {
+		handlerMainThread = new Handler();
+		taskPreseq = new PreSequanceTasker(gridview, progressBarTime, textViewTime).execute();
+		super.onStart();
+	}
+	
+	@Override
+	protected void onStop() {
+		if(handlerMainThread!=null) {
+			handlerMainThread.removeCallbacksAndMessages(null); // remove all runnable.
+			// see http://stackoverflow.com/a/11299735/1046060
+		}
+		if(taskMainseq!=null) {
+			taskMainseq.cancel(true);
+		}
+		if(taskPreseq !=null)
+		{
+			taskPreseq.cancel(true);
+		}
+		super.onStop();
 	}
 	
 	public class SequanceTasker extends AsyncTask<Void, Integer, Void> {
@@ -144,7 +173,6 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 	
 	
 	public class MainSequanceTasker extends SequanceTasker {
-
 		public MainSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			super(gdv, pbar, text);
 			timeLmt = 60;
@@ -191,8 +219,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 			}
 			adapter.notifyDataSetChanged();
 			
-			new Handler().postDelayed(new Runnable() {
-				
+			runnableEndOfGame = new Runnable() {
 				@Override
 				public void run() {
 					if(isClear){
@@ -209,7 +236,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 					builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
 					    @Override
 					    public void onClick(DialogInterface dialog, int which) {
-					        System.exit(0);
+					        finish();
 					    }
 					});
 					builder.show();
@@ -235,7 +262,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 							} catch (SQLException e) {
 								e.printStackTrace();
 							}
-					        System.exit(0);
+					        finish();
 					    }
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -246,7 +273,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 					});
 					builder.show();
 				}
-			}, 1000);
+			};
+			handlerMainThread.postDelayed(runnableEndOfGame, 1000);
 			
 			super.onPostExecute(result);
 		}		
@@ -254,6 +282,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 	}
 	
 	public class PreSequanceTasker extends SequanceTasker {
+		
 		public PreSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			super(gdv, pbar, text);
 			timeLmt = 10;
@@ -285,7 +314,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 			}
 			adapter.notifyDataSetChanged();
 			
-			new MainSequanceTasker(gdv,pbar,text).execute();
+			taskMainseq = new MainSequanceTasker(gdv,pbar,text).execute();
 			
 			super.onPostExecute(result);
 		}
@@ -342,7 +371,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
             
             if(openedCard2!=null && handlerLockerOn==false) {
             	handlerLockerOn = true;
-            	new Handler().postDelayed(new Runnable() {
+            	runnableCardFlip = new Runnable() {
     				@Override
     				public void run() {
     					if(openedCard1.getResId()==openedCard2.getResId()) {
@@ -357,7 +386,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
     					handlerLockerOn=false;
     					notifyDataSetChanged();
     				}
-    			}, 500);	
+    			};
+            	handlerMainThread.postDelayed(runnableCardFlip, 500);	
             }
         }
 	}
