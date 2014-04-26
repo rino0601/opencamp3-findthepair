@@ -27,8 +27,8 @@ public class Card {
 	public int getResId() {
 		return resId;
 	}
-	public void lock() {
-		isLocked = true;		
+	public void lock(boolean lock) {
+		isLocked = lock;		
 	}
 	public boolean isLock() {
 		return isLocked;

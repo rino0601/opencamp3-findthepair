@@ -164,7 +164,7 @@ public class Game extends Activity {
 			int count = adapter.getCount();
 			for(int i=0; i < count; i++) {
 				Card item = (Card) adapter.getItem(i);
-				item.lock(); // whatever it is.
+				item.lock(true); // whatever it is.
 			}
 			adapter.notifyDataSetChanged();
 			
@@ -188,6 +188,7 @@ public class Game extends Activity {
 			for(int i=0; i < count; i++) {
 				Card item = (Card) adapter.getItem(i);
 				item.touch();
+				item.lock(true);
 			}
 			adapter.notifyDataSetChanged();
 			
@@ -199,6 +200,7 @@ public class Game extends Activity {
 			int count = adapter.getCount();
 			for(int i=0; i < count; i++) {
 				Card item = (Card) adapter.getItem(i);
+				item.lock(false);
 				item.clear();
 			}
 			adapter.notifyDataSetChanged();
@@ -265,8 +267,8 @@ public class Game extends Activity {
     				public void run() {
     					if(openedCard1.getResId()==openedCard2.getResId()) {
     						//get point;
-    						openedCard1.lock();
-    						openedCard2.lock();
+    						openedCard1.lock(true);
+    						openedCard2.lock(true);
     					} else {
     						openedCard1.clear();
     						openedCard2.clear();
