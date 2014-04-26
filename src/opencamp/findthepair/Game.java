@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -263,6 +264,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 								e.printStackTrace();
 							}
 					        finish();
+					        Intent intent2 = new Intent(Game.this, Rank.class);
+							startActivity(intent2);
 					    }
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
