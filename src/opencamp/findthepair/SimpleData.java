@@ -10,9 +10,9 @@ import com.j256.ormlite.field.DatabaseField;
 public class SimpleData {
 	@DatabaseField(generatedId = true)
 	int id;
-	@DatabaseField
-	String name;
 	@DatabaseField(index = true)
+	String name;
+	@DatabaseField
 	int score;
 	@DatabaseField
 	Date date;

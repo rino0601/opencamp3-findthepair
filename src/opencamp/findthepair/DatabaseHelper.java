@@ -1,6 +1,7 @@
 package opencamp.findthepair;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Date;
 
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -50,12 +52,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		RuntimeExceptionDao<SimpleData, Integer> dao = getSimpleDataDao();
 		long millis = System.currentTimeMillis();
 		// create some entries in the onCreate
-		dao.create(new SimpleData("tester1",300,new Date()));
-		dao.create(new SimpleData("tester2",50,new Date()));
-		dao.create(new SimpleData("tester3",3000,new Date()));
-		dao.create(new SimpleData("tester4",200,new Date()));
-		dao.create(new SimpleData("tester5",100,new Date()));
-		Log.i(DatabaseHelper.class.getName(), "created new entries in onCreate: " + millis);
+//		dao.create(new SimpleData("tester1",300,new Date()));
+//		dao.create(new SimpleData("tester2",50,new Date()));
+//		dao.create(new SimpleData("tester3",3000,new Date()));
+//		dao.create(new SimpleData("tester4",200,new Date()));
+//		dao.create(new SimpleData("tester5",100,new Date()));
 	}
 
 	/**

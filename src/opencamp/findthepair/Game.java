@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import opencamp.findthepair.customview.SquareImageView;
 import opencamp.findthepair.model.Card;
@@ -19,9 +21,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,6 +39,10 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.UpdateBuilder;
 
 public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 
@@ -229,9 +232,23 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 					builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
 					    @Override
 					    public void onClick(DialogInterface dialog, int which) {
+					    	
 					        String name = input.getText().toString();
+					        int score = (int) (1000000*(pbar.getProgress()/60000.0));
+					        Date date = Calendar.getInstance().getTime();
+					        
+							RuntimeExceptionDao<SimpleData, Integer> simpleDao = getHelper().getSimpleDataDao();
 					        try {
-								getHelper().getDao().create(new SimpleData(name, (int) (1000000*(pbar.getProgress()/60000.0)),Calendar.getInstance().getTime()));
+					        	List<SimpleData> list = simpleDao.queryBuilder().where().eq("name", name).query();
+					    		if ( !list.isEmpty() && list.get(0).score < score ) {
+									UpdateBuilder<SimpleData, Integer> updateBuilder = simpleDao.updateBuilder();
+									updateBuilder.updateColumnValue("score", ""+score);
+									updateBuilder.updateColumnValue("date", date);
+									updateBuilder.where().eq("name", name);
+									updateBuilder.update();
+					    		} else {
+									simpleDao.create(new SimpleData(name, score, date));
+					    		}
 							} catch (SQLException e) {
 								e.printStackTrace();
 							}
