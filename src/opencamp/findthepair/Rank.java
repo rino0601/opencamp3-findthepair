@@ -1,10 +1,13 @@
 package opencamp.findthepair;
 
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.os.Bundle;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
@@ -17,46 +20,34 @@ public class Rank extends OrmLiteBaseActivity<DatabaseHelper> {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		TextView tv = new TextView(this);
-		doSampleDatabaseStuff("onCreate", tv);
-		setContentView(tv);
+		setContentView(R.layout.rank);
+		doSampleDatabaseStuff("onCreate");
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void doSampleDatabaseStuff(String action, TextView tv) {
+	private void doSampleDatabaseStuff(String action) {
 		RuntimeExceptionDao<SimpleData, Integer> simpleDao = getHelper().getSimpleDataDao();
 		QueryBuilder<SimpleData, Integer> qB = simpleDao.queryBuilder();
 		qB.orderBy("score", false);
 		PreparedQuery<SimpleData> pQ = null;
-		StringBuilder sb = new StringBuilder();
 		try {
 			pQ = qB.prepare();
-		} catch (SQLException e) {
-			// ignore
-		}
+		} catch (SQLException e){}
+		
 		List<SimpleData> list = simpleDao.query(pQ);
-		//Collections.sort(list);
-		sb.append("got ").append(list.size()).append(" entries in ").append(action).append("\n");
-		sb.append("------------------------------------------\n");
-
-		// if we already have items in the database
-		int simpleC = 0;
+		
+		ListView rankList = (ListView)findViewById(R.id.RANK);
+		ArrayList<HashMap<String, String>> mylist = new ArrayList<HashMap<String, String>>();
+		HashMap<String, String> map;
 		for (SimpleData simple : list) {
-			// USE
-			// simple.id
-			// simple.name
-			// simple.score
-			// simple.time
-			// simple.acc
-			// simple.date
-			sb.append("[").append(simpleC+1).append("] ").append(simple).append("\n");
-			simpleC++;
+			map = new HashMap<String, String>();
+			map.put("name", simple.name);
+			map.put("score", ""+simple.score);
+			mylist.add(map);
 		}
 		
-		
-
-		tv.setText(sb.toString());
-		
+		SimpleAdapter mSchedule = new SimpleAdapter(this, mylist, R.layout.row,
+	            new String[] {"name", "score"}, new int[] {R.id.NAME_CELL, R.id.SCORE_CELL});
+		rankList.setAdapter(mSchedule);
 	}
 }
 
