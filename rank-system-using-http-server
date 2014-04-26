@@ -1,0 +1,8 @@
+<랭킹 등록>
+http://165.194.35.212/post 에
+POST 로 name(이름, string) 과 score(점수, int) 를 입력
+성공시 response code 200(OK), 실패시 400(Bad Request)
+
+<랭킹 불러오기>
+http://165.194.35.212/get 을 GET 으로 요청하면 다음과 같은 json text를 부름
+[{"name":"user","score":12345,"time":"2014-04-26 22:56:27"}, {"name":"user2","score":9876,"time":"2014-04-26 23:56:12"}, ...]
