@@ -1,5 +1,6 @@
 package opencamp.findthepair;
 
+import opencamp.findthepair.customview.SquareImageView;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -9,7 +10,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 public class Game extends Activity {
@@ -19,15 +19,18 @@ public class Game extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		
-		 GridView gridview = (GridView) findViewById(R.id.gridview);
-		    gridview.setAdapter(new ImageAdapter(this));
+		GridView gridview = (GridView) findViewById(R.id.gridview);
+		gridview.setNumColumns(4);
+	    gridview.setAdapter(new ImageAdapter(this));
 
-		    gridview.setOnItemClickListener(new OnItemClickListener() {
-		    	@Override
-		        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-		            Toast.makeText(Game.this, "" + position, Toast.LENGTH_SHORT).show();
-		        }
-		    });
+	    gridview.setOnItemClickListener(new OnItemClickListener() {
+	    	@Override
+	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+	            Toast.makeText(Game.this, "" + position, Toast.LENGTH_SHORT).show();
+	        }
+	    });
+	    
+	    
 	}
 	
 	public class ImageAdapter extends BaseAdapter {
@@ -52,17 +55,18 @@ public class Game extends Activity {
 	    // create a new ImageView for each item referenced by the Adapter
 	    @Override
 	    public View getView(int position, View convertView, ViewGroup parent) {
-	        ImageView imageView;
+	    	SquareImageView imageView;
 	        if (convertView == null) {  // if it's not recycled, initialize some attributes
-	            imageView = new ImageView(mContext);
-	            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
-	            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-	            imageView.setPadding(8, 8, 8, 8);
+	        	imageView = new SquareImageView(mContext);
+	        	imageView.setLayoutParams(
+	            		new GridView.LayoutParams(
+	            				GridView.LayoutParams.MATCH_PARENT, 
+	            				GridView.LayoutParams.MATCH_PARENT
+	            				));
 	        } else {
-	            imageView = (ImageView) convertView;
+	        	imageView = (SquareImageView) convertView;
 	        }
-
-	        imageView.setImageResource(mThumbIds[position]);
+        	imageView.setBackgroundResource(mThumbIds[position]);
 	        return imageView;
 	    }
 
@@ -78,7 +82,6 @@ public class Game extends Activity {
 	            R.drawable.sample_0, R.drawable.sample_1,
 	            R.drawable.sample_2, R.drawable.sample_3,
 	            R.drawable.sample_4, R.drawable.sample_5,
-	            R.drawable.sample_6, R.drawable.sample_7
 	    };
 	}
 }
