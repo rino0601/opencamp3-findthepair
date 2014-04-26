@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="cards">
+        <item >@drawable/r001</item>
+        <item >@drawable/r002</item>
+        <item >@drawable/r003</item>
+        <item >@drawable/r004</item>
+        <item >@drawable/r005</item>
+        <item >@drawable/r006</item>
+        <item >@drawable/r007</item>
+        <item >@drawable/r008</item>
+        <item >@drawable/r009</item>
+        <item >@drawable/r010</item>
+
+        
+    </array>
+    
+</resources>
