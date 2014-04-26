@@ -54,6 +54,7 @@ public class Game extends Activity {
 	public class IImageAdapter extends ArrayAdapter<Card> implements OnItemClickListener{
 		private Card openedCard1;
 		private Card openedCard2;
+		private boolean handlerLockerOn;
 
 		public IImageAdapter(Context context) {
 			super(context, R.layout.adapter_game);
@@ -80,29 +81,38 @@ public class Game extends Activity {
 	    
 	    @Override
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+	    	if(openedCard1!=null && openedCard2 != null)
+	    		return;
+	    	
     		Card item = getItem(position);
+    		if(item.isLock())
+    			return ;
+    		
     		if(openedCard1==null) {
     			openedCard1 = item;
     		} else {
+    			if(openedCard1==item) // if touch same one. 
+    				return; // no reaction.
     			openedCard2 = item;
     		}
     		item.touch();
             notifyDataSetChanged();
             
-            if(openedCard2!=null) {
+            if(openedCard2!=null && handlerLockerOn==false) {
+            	handlerLockerOn = true;
             	new Handler().postDelayed(new Runnable() {
     				@Override
     				public void run() {
     					if(openedCard1.getResId()==openedCard2.getResId()) {
     						//get point;
-    						// openedCard1.touch();
-    						// openedCard2.touch();
-    						openedCard1=openedCard2=null;
+    						openedCard1.lock();
+    						openedCard2.lock();
     					} else {
     						openedCard1.clear();
     						openedCard2.clear();
-    						openedCard1=openedCard2=null;
     					}
+    					openedCard1=openedCard2=null;
+    					handlerLockerOn=false;
     					notifyDataSetChanged();
     				}
     			}, 500);	

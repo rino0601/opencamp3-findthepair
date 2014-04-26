@@ -7,6 +7,7 @@ public class Card {
 	private static final int defaultResId = R.drawable.ic_launcher; 
 	private int frontResId = defaultResId;
 	private int resId;
+	private boolean isLocked = false;
 	public Card(int resId) {
 		this.resId = resId;
 	}
@@ -15,12 +16,20 @@ public class Card {
 	}
 
 	public void touch() {
-		frontResId = resId;
+		if(!isLocked)
+			frontResId = resId;
 	}
 	public void clear() {
-		frontResId = defaultResId;
+		if(!isLocked)
+			frontResId = defaultResId;
 	}
 	public int getResId() {
 		return resId;
+	}
+	public void lock() {
+		isLocked = true;		
+	}
+	public boolean isLock() {
+		return isLocked;
 	}
 }
