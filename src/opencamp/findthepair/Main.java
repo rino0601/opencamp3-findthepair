@@ -28,8 +28,8 @@ public class Main extends Activity {
 
 		btn_rank.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				Intent intent1 = new Intent(Main.this, Rank.class);
-				startActivity(intent1);
+				Intent intent2 = new Intent(Main.this, Rank.class);
+				startActivity(intent2);
 			}
 		});
 	}
