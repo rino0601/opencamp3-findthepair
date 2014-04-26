@@ -1,6 +1,8 @@
 package opencamp.findthepair;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 
 import opencamp.findthepair.customview.SquareImageView;
@@ -16,6 +18,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+
+import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,7 +41,7 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class Game extends Activity {
+public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +83,7 @@ public class Game extends Activity {
 		new PreSequanceTasker(gridview, progressBarTime, textViewTime).execute();
 	}
 	
-	public static class SequanceTasker extends AsyncTask<Void, Integer, Void> {
+	public class SequanceTasker extends AsyncTask<Void, Integer, Void> {
 		protected GridView gdv;
 		protected ProgressBar pbar;
 		protected TextView text;
@@ -139,7 +143,7 @@ public class Game extends Activity {
 	}
 	
 	
-	public static class MainSequanceTasker extends SequanceTasker {
+	public class MainSequanceTasker extends SequanceTasker {
 
 		public MainSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			super(gdv, pbar, text);
@@ -225,7 +229,13 @@ public class Game extends Activity {
 					builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
 					    @Override
 					    public void onClick(DialogInterface dialog, int which) {
-					        String m_Text = input.getText().toString();
+					        String name = input.getText().toString();
+					        try {
+								getHelper().getDao().create(new SimpleData(name, (int) (1000000*(pbar.getProgress()/60000.0)),Calendar.getInstance().getTime()));
+							} catch (SQLException e) {
+								e.printStackTrace();
+							}
+					        System.exit(0);
 					    }
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -243,7 +253,7 @@ public class Game extends Activity {
 		
 	}
 	
-	public static class PreSequanceTasker extends SequanceTasker {
+	public class PreSequanceTasker extends SequanceTasker {
 		public PreSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			super(gdv, pbar, text);
 			timeLmt = 10;
