@@ -20,4 +20,7 @@ public class Card {
 	public void clear() {
 		frontResId = defaultResId;
 	}
+	public int getResId() {
+		return resId;
+	}
 }

@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -51,6 +52,9 @@ public class Game extends Activity {
 	}
 	
 	public class IImageAdapter extends ArrayAdapter<Card> implements OnItemClickListener{
+		private Card openedCard1;
+		private Card openedCard2;
+
 		public IImageAdapter(Context context) {
 			super(context, R.layout.adapter_game);
 		}
@@ -77,8 +81,32 @@ public class Game extends Activity {
 	    @Override
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
     		Card item = getItem(position);
+    		if(openedCard1==null) {
+    			openedCard1 = item;
+    		} else {
+    			openedCard2 = item;
+    		}
     		item.touch();
             notifyDataSetChanged();
+            
+            if(openedCard2!=null) {
+            	new Handler().postDelayed(new Runnable() {
+    				@Override
+    				public void run() {
+    					if(openedCard1.getResId()==openedCard2.getResId()) {
+    						//get point;
+    						// openedCard1.touch();
+    						// openedCard2.touch();
+    						openedCard1=openedCard2=null;
+    					} else {
+    						openedCard1.clear();
+    						openedCard2.clear();
+    						openedCard1=openedCard2=null;
+    					}
+    					notifyDataSetChanged();
+    				}
+    			}, 500);	
+            }
         }
 	}
 }
