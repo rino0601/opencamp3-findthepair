@@ -40,6 +40,8 @@ public class Game extends Activity {
 			resId.add(ta.getResourceId(i, 0));
 		}		
 		ta.recycle();
+		Collections.shuffle(resId);
+		resId = new ArrayList<Integer>(resId.subList(0, 10));
 		// add resource into adapter properly.
 		Collections.shuffle(resId);		
 		for(int i : resId) {
