@@ -15,20 +15,14 @@ public class SimpleData {
 	@DatabaseField(index = true)
 	int score;
 	@DatabaseField
-	double time;
-	@DatabaseField
-	double acc;
-	@DatabaseField
 	Date date;
 
 	SimpleData() {
 	}
 	
-	public SimpleData(String Name, int Score, double Time, double Acc, Date Date) {
+	public SimpleData(String Name, int Score, Date Date) {
 		this.name = Name;
 		this.score = Score;
-		this.time = Time;
-		this.acc = Acc;
 		this.date = Date;
 	}
 
@@ -36,9 +30,7 @@ public class SimpleData {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
-		sb.append(", ").append(String.format("%d점", score));
-		sb.append(", ").append(time);
-		sb.append(", ").append(String.format("%2.2f%%", acc));
+		sb.append(", ").append(""+score);
 
 		return sb.toString();
 	}

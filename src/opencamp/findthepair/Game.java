@@ -1,17 +1,28 @@
 package opencamp.findthepair;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 
 import opencamp.findthepair.customview.SquareImageView;
 import opencamp.findthepair.model.Card;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -25,6 +36,9 @@ public class Game extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
+		
+		String test = sendByHttp("test", 100);
+		Log.i("postsend test", test);
 		
 		GridView gridview = (GridView) findViewById(R.id.gridview);
 		IImageAdapter iImageAdapter = new IImageAdapter(this);
@@ -120,7 +134,40 @@ public class Game extends Activity {
         }
 	}
 	
-	public boolean scoreSend(String name, int score, double time, double acc)
+	private String sendByHttp(String name, int score) {
+		if(name == null)
+			return "NULL_NAME";
+		
+		// 서버를 설정해주세요!!!
+		String URL = "http://165.194.35.212/post";
+		HttpClient http = new DefaultHttpClient();
+		try { 
+
+			ArrayList<NameValuePair> nameValuePairs = 
+					new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("name", name));
+			nameValuePairs.add(new BasicNameValuePair("score", ""+score));
+
+			HttpParams params = http.getParams();
+			HttpConnectionParams.setConnectionTimeout(params, 5000);
+			HttpConnectionParams.setSoTimeout(params, 5000);
+
+			HttpPost httpPost = new HttpPost(URL);
+			UrlEncodedFormEntity entityRequest = 
+					new UrlEncodedFormEntity(nameValuePairs, "utf-8");
+			
+			httpPost.setEntity(entityRequest);
+			
+			HttpResponse response = http.execute(httpPost);
+			StatusLine statusLine = response.getStatusLine();
+			int statusCode = statusLine.getStatusCode(); // This will be 200 or 404, etc.
+			
+			return ""+statusCode;
+		}catch(Exception e){e.printStackTrace();return "";}
+		
+	}
+	
+	public boolean scoreSend(String name, int score)
 	{
 //		SimpleData simple = new SimpleData(name, score, time, acc, new Date());
 		
