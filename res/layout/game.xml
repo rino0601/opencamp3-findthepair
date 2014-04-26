@@ -5,15 +5,45 @@
     android:layout_height="match_parent"
     tools:context=".main" >
 
-    <GridView 
+    <GridView
+        android:id="@+id/gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/relativeLayout1"
+        android:gravity="center"
+        android:horizontalSpacing="8dp"
+        android:numColumns="4"
         android:padding="8dp"
-	    android:id="@+id/gridview"
-	    android:layout_width="fill_parent" 
-	    android:layout_height="fill_parent"
-	    android:numColumns="4"
-	    android:verticalSpacing="8dp"
-	    android:horizontalSpacing="8dp"
-	    android:stretchMode="columnWidth"
-	    android:gravity="center"/>
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="8dp" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:padding="8dp" >
+
+        <ProgressBar
+            android:id="@+id/progressBarTime"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progress="2000"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/textViewTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
