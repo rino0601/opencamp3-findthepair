@@ -62,6 +62,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		
+		//new NetworkTasker().execute(new SimpleData("test",200,new Date()));
+		
 		gridview = (GridView) findViewById(R.id.gridview);
 		IImageAdapter iImageAdapter = new IImageAdapter(this);
 		gridview.setOnItemClickListener(iImageAdapter);
@@ -113,6 +115,46 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 			taskPreseq.cancel(true);
 		}
 		super.onStop();
+	}
+	
+	public class NetworkTasker extends AsyncTask<SimpleData, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(SimpleData... param) {
+			String name = param[0].name;
+			int score = param[0].score;
+
+			if(name == null)
+				return -1;
+			
+			// 서버를 설정해주세요!!!
+			String URL = "http://165.194.35.212/post/";
+			HttpClient http = new DefaultHttpClient();
+			try { 
+
+				ArrayList<NameValuePair> nameValuePairs = 
+						new ArrayList<NameValuePair>();
+				nameValuePairs.add(new BasicNameValuePair("name", name));
+				nameValuePairs.add(new BasicNameValuePair("score", ""+score));
+
+				HttpParams params = http.getParams();
+				HttpConnectionParams.setConnectionTimeout(params, 5000);
+				HttpConnectionParams.setSoTimeout(params, 5000);
+
+				HttpPost httpPost = new HttpPost(URL);
+				UrlEncodedFormEntity entityRequest = 
+						new UrlEncodedFormEntity(nameValuePairs, "utf-8");
+				
+				httpPost.setEntity(entityRequest);
+				
+				HttpResponse response = http.execute(httpPost);
+				StatusLine statusLine = response.getStatusLine();
+				int statusCode = statusLine.getStatusCode(); // This will be 200 or 404, etc.
+				
+				return statusCode;
+			}catch(Exception e){e.printStackTrace();return -1;}
+		}
+		
 	}
 	
 	public class SequanceTasker extends AsyncTask<Void, Integer, Void> {
@@ -407,46 +449,6 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
             	handlerMainThread.postDelayed(runnableCardFlip, 500);	
             }
         }
-	}
-	
-	private String sendByHttp(String name, int score) {
-		if(name == null)
-			return "NULL_NAME";
-		
-		// 서버를 설정해주세요!!!
-		String URL = "http://165.194.35.212/post";
-		HttpClient http = new DefaultHttpClient();
-		try { 
-
-			ArrayList<NameValuePair> nameValuePairs = 
-					new ArrayList<NameValuePair>();
-			nameValuePairs.add(new BasicNameValuePair("name", name));
-			nameValuePairs.add(new BasicNameValuePair("score", ""+score));
-
-			HttpParams params = http.getParams();
-			HttpConnectionParams.setConnectionTimeout(params, 5000);
-			HttpConnectionParams.setSoTimeout(params, 5000);
-
-			HttpPost httpPost = new HttpPost(URL);
-			UrlEncodedFormEntity entityRequest = 
-					new UrlEncodedFormEntity(nameValuePairs, "utf-8");
-			
-			httpPost.setEntity(entityRequest);
-			
-			HttpResponse response = http.execute(httpPost);
-			StatusLine statusLine = response.getStatusLine();
-			int statusCode = statusLine.getStatusCode(); // This will be 200 or 404, etc.
-			
-			return ""+statusCode;
-		}catch(Exception e){e.printStackTrace();return "";}
-		
-	}
-	
-	public boolean scoreSend(String name, int score)
-	{
-//		SimpleData simple = new SimpleData(name, score, time, acc, new Date());
-		
-		return true;
 	}
 }
 
