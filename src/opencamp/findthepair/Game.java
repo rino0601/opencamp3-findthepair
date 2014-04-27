@@ -24,7 +24,11 @@ import org.apache.http.params.HttpParams;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.Intent;
 import android.content.res.TypedArray;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,22 +53,24 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 	private ProgressBar progressBarTime;
 	private TextView textViewTime;
 	private GridView gridview;
-	
+
 	private AsyncTask<Void,Integer,Void> taskPreseq;
 	private AsyncTask<Void,Integer,Void> taskMainseq;
 	private AsyncTask<SimpleData, Void, Integer> taskerNetwork;
-	
+
 	private Handler handlerMainThread;
 	private Runnable runnableCardFlip;
 	private Runnable runnableEndOfGame;
+
+	private int level;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
-		
-		
-		
+
+
+
 		gridview = (GridView) findViewById(R.id.gridview);
 		IImageAdapter iImageAdapter = new IImageAdapter(this);
 		gridview.setOnItemClickListener(iImageAdapter);
@@ -89,19 +95,22 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		}
 		// finish init.
 		gridview.setAdapter(iImageAdapter);
-		
+
 		progressBarTime = (ProgressBar) findViewById(R.id.progressBarTime);
-		
+
 		textViewTime = (TextView) findViewById(R.id.textViewTime);
+
+		SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
+		level = sp.getInt("level", 0);
 	}
-	
+
 	@Override
 	protected void onStart() {
 		handlerMainThread = new Handler();
 		taskPreseq = new PreSequanceTasker(gridview, progressBarTime, textViewTime).execute();
 		super.onStart();
 	}
-	
+
 	@Override
 	protected void onStop() {
 		if(handlerMainThread!=null) {
@@ -119,18 +128,17 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		}
 		super.onStop();
 	}
-	
+
 	public class NetworkTasker extends AsyncTask<SimpleData, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(SimpleData... param) {
-			//
 			String name = param[0].name;
 			int score = param[0].score;
 
 			if(name == null)
 				return -1;
-			
+
 			// 서버를 설정해주세요!!!
 			String URL = "http://165.194.35.212/post/";
 			HttpClient http = new DefaultHttpClient();
@@ -148,28 +156,28 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 				HttpPost httpPost = new HttpPost(URL);
 				UrlEncodedFormEntity entityRequest = 
 						new UrlEncodedFormEntity(nameValuePairs, "utf-8");
-				
+
 				httpPost.setEntity(entityRequest);
-				
+
 				HttpResponse response = http.execute(httpPost);
 				StatusLine statusLine = response.getStatusLine();
 				int statusCode = statusLine.getStatusCode(); // This will be 200 or 404, etc.
-				
+
 				return statusCode;
 			}catch(Exception e){e.printStackTrace();return -1;}
 		}
-		
+
 	}
-	
+
 	public class SequanceTasker extends AsyncTask<Void, Integer, Void> {
 		protected GridView gdv;
 		protected ProgressBar pbar;
 		protected TextView text;
-		
+
 		protected int timeLmt = 10;
 		protected int tick;
 		protected int max;
-		
+
 		public SequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			this.gdv = gdv;
 			this.pbar = pbar;
@@ -179,17 +187,17 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 			tick = 1000/30;
 			max = timeLmt*tick*30;
 		}
-		
-		
+
+
 		@Override
 		protected void onPreExecute() {
 			pbar.setMax(max);
 			pbar.setProgress(max);
 			text.setText(timeLmt+" Sec");
-			
+
 			super.onPreExecute();
 		}
-		
+
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
@@ -205,12 +213,12 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 			}
 			return null;
 		}
-		
+
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			int progress = values[0];
 			int sec = values[1];
-			
+
 			if(progress!=0) {
 				pbar.incrementProgressBy(-progress);
 			} else {
@@ -219,8 +227,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 			super.onProgressUpdate(values);
 		}
 	}
-	
-	
+
+
 	public class MainSequanceTasker extends SequanceTasker {
 		public MainSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			super(gdv, pbar, text);
@@ -244,7 +252,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 			}
 			return null;
 		}
-		
+
 		private boolean isGameClear() {
 			boolean comp = true;
 			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
@@ -259,7 +267,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		protected void onPostExecute(Void result) {
 			Log.d("part of score",":::"+pbar.getProgress());
 			final boolean isClear = isGameClear();
-			
+
 			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
 			int count = adapter.getCount();
 			for(int i=0; i < count; i++) {
@@ -267,7 +275,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 				item.lock(true); // whatever it is.
 			}
 			adapter.notifyDataSetChanged();
-			
+
 			runnableEndOfGame = new Runnable() {
 				@Override
 				public void run() {
@@ -306,11 +314,25 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 
 						@Override
 					    public void onClick(DialogInterface dialog, int which) {
-					    	
+
+					    	int basicScore = 1000000;
+
+					    	switch (level) {
+					    	case 0:
+					    		basicScore = 1000000;
+					    		break;
+					    	case 1:
+					    		basicScore = 1500000;
+					    		break;
+					    	case 2:
+					    		basicScore = 2000000;
+					    		break;
+					    	}
+
 					        String name = input.getText().toString();
-					        int score = (int) (1000000*(pbar.getProgress()/60000.0));
+					        int score = (int) (basicScore*(pbar.getProgress()/60000.0));
 					        Date date = Calendar.getInstance().getTime();
-					        
+
 							RuntimeExceptionDao<SimpleData, Integer> simpleDao = getHelper().getSimpleDataDao();
 //					        try {
 //					        	List<SimpleData> list = simpleDao.queryBuilder().where().eq("name", name).query();
@@ -328,6 +350,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 //								e.printStackTrace();
 //							}
 					        finish();
+					        Intent intent2 = new Intent(Game.this, Rank.class);
+							startActivity(intent2);
 					    }
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -340,21 +364,31 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 				}
 			};
 			handlerMainThread.postDelayed(runnableEndOfGame, 1000);
-			
+
 			super.onPostExecute(result);
 		}		
-		
+
 	}
-	
+
 	public class PreSequanceTasker extends SequanceTasker {
-		
+
 		public PreSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			super(gdv, pbar, text);
-			timeLmt = 10;
+			switch (level) {
+			case 0:
+				timeLmt = 10;
+				break;
+			case 1:
+				timeLmt = 5;
+				break;
+			case 2:
+				timeLmt = 2;
+				break;
+			}
 			init();
 		}
-		
-		
+
+
 		@Override
 		protected void onPreExecute() {
 			IImageAdapter adapter = (IImageAdapter) gdv.getAdapter();
@@ -365,7 +399,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 				item.lock(true);
 			}
 			adapter.notifyDataSetChanged();
-			
+
 			super.onPreExecute();
 		}
 		@Override
@@ -378,15 +412,15 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 				item.clear();
 			}
 			adapter.notifyDataSetChanged();
-			
+
 			taskMainseq = new MainSequanceTasker(gdv,pbar,text).execute();
-			
+
 			super.onPostExecute(result);
 		}
-		
+
 
 	}
-	
+
 	public class IImageAdapter extends ArrayAdapter<Card> implements OnItemClickListener{
 		private Card openedCard1;
 		private Card openedCard2;
@@ -395,7 +429,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		public IImageAdapter(Context context) {
 			super(context, R.layout.adapter_game);
 		}
-		
+
 		 // create a new ImageView for each item referenced by the Adapter
 	    @Override
 	    public View getView(int position, View convertView, ViewGroup parent) {
@@ -414,12 +448,12 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
         	imageView.setBackgroundResource(item.getFrontResId());
 	        return imageView;
 	    }
-	    
+
 	    @Override
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	    	if(openedCard1!=null && openedCard2 != null)
 	    		return;
-	    	
+
     		Card item = getItem(position);
     		if(item.isLock())
     			return ;
@@ -432,6 +466,14 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
     			openedCard2 = item;
     		}
     		item.touch();
+    		MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.page_flip_20);
+    	    mp.start();
+    	    mp.setOnCompletionListener(new OnCompletionListener() {
+    	    	@Override
+				public void onCompletion(MediaPlayer mp) {
+					mp.release();
+				}
+			});
             notifyDataSetChanged();
             
             if(openedCard2!=null && handlerLockerOn==false) {
@@ -457,4 +499,3 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
         }
 	}
 }
-
