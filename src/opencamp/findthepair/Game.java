@@ -24,11 +24,7 @@ import org.apache.http.params.HttpParams;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.Intent;
 import android.content.res.TypedArray;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,8 +56,6 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 	private Handler handlerMainThread;
 	private Runnable runnableCardFlip;
 	private Runnable runnableEndOfGame;
-	
-	private int level;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,9 +92,6 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		progressBarTime = (ProgressBar) findViewById(R.id.progressBarTime);
 		
 		textViewTime = (TextView) findViewById(R.id.textViewTime);
-		
-		SharedPreferences sp = getSharedPreferences("pref", MODE_PRIVATE);
-		level = sp.getInt("level", 0);
 	}
 	
 	@Override
@@ -130,6 +121,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 
 		@Override
 		protected Integer doInBackground(SimpleData... param) {
+			//
 			String name = param[0].name;
 			int score = param[0].score;
 
@@ -311,22 +303,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 					    @Override
 					    public void onClick(DialogInterface dialog, int which) {
 					    	
-					    	int basicScore = 1000000;
-					    	
-					    	switch (level) {
-					    	case 0:
-					    		basicScore = 1000000;
-					    		break;
-					    	case 1:
-					    		basicScore = 1500000;
-					    		break;
-					    	case 2:
-					    		basicScore = 2000000;
-					    		break;
-					    	}
-					    	
 					        String name = input.getText().toString();
-					        int score = (int) (basicScore*(pbar.getProgress()/60000.0));
+					        int score = (int) (1000000*(pbar.getProgress()/60000.0));
 					        Date date = Calendar.getInstance().getTime();
 					        
 							RuntimeExceptionDao<SimpleData, Integer> simpleDao = getHelper().getSimpleDataDao();
@@ -345,8 +323,6 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 								e.printStackTrace();
 							}
 					        finish();
-					        Intent intent2 = new Intent(Game.this, Rank.class);
-							startActivity(intent2);
 					    }
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -369,17 +345,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		
 		public PreSequanceTasker(GridView gdv, ProgressBar pbar, TextView text) {
 			super(gdv, pbar, text);
-			switch (level) {
-			case 0:
-				timeLmt = 10;
-				break;
-			case 1:
-				timeLmt = 5;
-				break;
-			case 2:
-				timeLmt = 2;
-				break;
-			}
+			timeLmt = 10;
 			init();
 		}
 		
@@ -461,14 +427,6 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
     			openedCard2 = item;
     		}
     		item.touch();
-    		MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.page_flip_20);
-    	    mp.start();
-    	    mp.setOnCompletionListener(new OnCompletionListener() {
-    	    	@Override
-				public void onCompletion(MediaPlayer mp) {
-					mp.release();
-				}
-			});
             notifyDataSetChanged();
             
             if(openedCard2!=null && handlerLockerOn==false) {
