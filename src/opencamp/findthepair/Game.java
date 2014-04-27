@@ -56,6 +56,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 	
 	private AsyncTask<Void,Integer,Void> taskPreseq;
 	private AsyncTask<Void,Integer,Void> taskMainseq;
+	private AsyncTask<SimpleData, Void, Integer> taskerNetwork;
 	
 	private Handler handlerMainThread;
 	private Runnable runnableCardFlip;
@@ -68,7 +69,7 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		
-		//new NetworkTasker().execute(new SimpleData("test",200,new Date()));
+		
 		
 		gridview = (GridView) findViewById(R.id.gridview);
 		IImageAdapter iImageAdapter = new IImageAdapter(this);
@@ -119,9 +120,11 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 		if(taskMainseq!=null) {
 			taskMainseq.cancel(true);
 		}
-		if(taskPreseq !=null)
-		{
+		if(taskPreseq !=null) {
 			taskPreseq.cancel(true);
+		}
+		if(taskerNetwork != null) {
+			taskerNetwork.cancel(true);
 		}
 		super.onStop();
 	}
@@ -308,7 +311,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 
 					// Set up the buttons
 					builder.setPositiveButton("OK", new DialogInterface.OnClickListener() { 
-					    @Override
+
+						@Override
 					    public void onClick(DialogInterface dialog, int which) {
 					    	
 					    	int basicScore = 1000000;
@@ -330,20 +334,21 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 					        Date date = Calendar.getInstance().getTime();
 					        
 							RuntimeExceptionDao<SimpleData, Integer> simpleDao = getHelper().getSimpleDataDao();
-					        try {
-					        	List<SimpleData> list = simpleDao.queryBuilder().where().eq("name", name).query();
-					    		if ( !list.isEmpty() && list.get(0).score < score ) {
-									UpdateBuilder<SimpleData, Integer> updateBuilder = simpleDao.updateBuilder();
-									updateBuilder.updateColumnValue("score", ""+score);
-									updateBuilder.updateColumnValue("date", date);
-									updateBuilder.where().eq("name", name);
-									updateBuilder.update();
-					    		} else {
-									simpleDao.create(new SimpleData(name, score, date));
-					    		}
-							} catch (SQLException e) {
-								e.printStackTrace();
-							}
+//					        try {
+//					        	List<SimpleData> list = simpleDao.queryBuilder().where().eq("name", name).query();
+//					    		if ( !list.isEmpty() && list.get(0).score < score ) {
+//									UpdateBuilder<SimpleData, Integer> updateBuilder = simpleDao.updateBuilder();
+//									updateBuilder.updateColumnValue("score", ""+score);
+//									updateBuilder.updateColumnValue("date", date);
+//									updateBuilder.where().eq("name", name);
+//									updateBuilder.update();
+//					    		} else {
+//									simpleDao.create(new SimpleData(name, score, date));
+//					    		}
+					    		taskerNetwork =  new NetworkTasker().execute(new SimpleData(name, score, date));
+//							} catch (SQLException e) {
+//								e.printStackTrace();
+//							}
 					        finish();
 					        Intent intent2 = new Intent(Game.this, Rank.class);
 							startActivity(intent2);
