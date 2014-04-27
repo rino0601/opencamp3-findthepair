@@ -25,7 +25,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.Intent;
 import android.content.res.TypedArray;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -300,6 +303,8 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
 								e.printStackTrace();
 							}
 					        finish();
+					        Intent intent2 = new Intent(Game.this, Rank.class);
+							startActivity(intent2);
 					    }
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -414,6 +419,14 @@ public class Game extends OrmLiteBaseActivity<DatabaseHelper> {
     			openedCard2 = item;
     		}
     		item.touch();
+    		MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.page_flip_20);
+    	    mp.start();
+    	    mp.setOnCompletionListener(new OnCompletionListener() {
+    	    	@Override
+				public void onCompletion(MediaPlayer mp) {
+					mp.release();
+				}
+			});
             notifyDataSetChanged();
             
             if(openedCard2!=null && handlerLockerOn==false) {
